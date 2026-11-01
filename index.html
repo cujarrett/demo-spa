@@ -3,23 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Launchpad sandbox app</title>
+  <title>Your sandbox app - Created by Launchpad</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* A light, teal look on purpose. Launchpad is dark and purple, so a guest can
-       tell at a glance they have left Launchpad and are looking at their own app. */
+    /* Dark like Launchpad, so it feels related. A fuchsia accent and its own top bar,
+       so a guest can tell it is their own app and not another Launchpad page. */
     :root {
-      color-scheme: light;
-      --bg: #f6f8f7;
-      --surface: #ffffff;
-      --border: #dfe5e3;
-      --text: #14211d;
-      --text-dim: #5b6b66;
-      --accent: #0f9d8a;
-      --accent-soft: #e2f5f1;
-      --bad: #c2410c;
-      --bad-soft: #fdeee6;
+      color-scheme: dark;
+      --bg: #120f1a;
+      --surface: #1c1726;
+      --surface-alt: #251e33;
+      --border: #342a47;
+      --text: #ece6f5;
+      --text-dim: #9a8fae;
+      --accent: #e879f9;
+      --accent-strong: #c026d3;
+      --accent-soft: rgba(232, 121, 249, 0.14);
+      --ok: #4ade80;
+      --bad: #fb7185;
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
     }
@@ -36,11 +38,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem 1rem;
       flex-wrap: wrap;
-      padding: 0.75rem 1rem;
-      background: var(--surface);
+      padding: 0.7rem 1rem;
       border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(192, 38, 211, 0.18), transparent 60%);
       font-size: 0.85rem;
     }
     .app-name { font-weight: 700; }
@@ -49,79 +51,99 @@
     .made-by a { color: var(--accent); }
 
     main {
-      max-width: 640px;
+      max-width: 860px;
       margin: 0 auto;
       padding: 2.5rem 1rem 3rem;
     }
     h1 {
-      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      font-size: clamp(1.7rem, 6vw, 2.6rem);
       line-height: 1.15;
       letter-spacing: -0.02em;
     }
     h1 b { color: var(--accent); }
     .lede {
-      margin: 0.5rem 0 1.75rem;
+      margin: 0.6rem 0 1.75rem;
       color: var(--text-dim);
+      max-width: 40rem;
+    }
+    .lede strong { color: var(--text); }
+
+    .error-banner {
+      display: none;
+      margin-bottom: 1rem;
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      background: rgba(251, 113, 133, 0.12);
+      color: var(--bad);
+      font-size: 0.85rem;
     }
 
     .services {
-      list-style: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
     }
     .service {
-      display: grid;
-      grid-template-columns: 1.75rem 1fr auto;
-      gap: 0.25rem 0.75rem;
-      align-items: baseline;
-      padding: 0.9rem 1rem;
-      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.4s;
     }
-    .service:first-child { border-top: none; }
-    .mark {
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 0.8rem;
+    .service.flash { border-color: var(--accent); }
+    .service-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .product {
+      font-size: 1.05rem;
       font-weight: 700;
-      align-self: center;
-      background: var(--border);
-      color: var(--text-dim);
     }
-    .service.ok .mark { background: var(--accent-soft); color: var(--accent); }
-    .service.error .mark { background: var(--bad-soft); color: var(--bad); }
-    .service-name { font-weight: 600; }
-    .tech {
-      display: inline-block;
-      margin-left: 0.35rem;
-      padding: 0 0.4rem;
-      border-radius: 4px;
-      background: var(--accent-soft);
-      color: var(--accent);
+    .where {
       font-size: 0.75rem;
-      font-weight: 700;
-    }
-    .service-detail {
-      grid-column: 2;
       color: var(--text-dim);
-      font-size: 0.85rem;
     }
+    .state {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ok);
+    }
+    .service.error .state { color: var(--bad); }
+    .service.starting .state { color: var(--text-dim); }
     .latency {
-      grid-row: 1;
-      grid-column: 3;
+      margin-top: 0.4rem;
       font-family: var(--mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .latency small { font-size: 0.9rem; color: var(--text-dim); }
+    .spark { width: 100%; height: 28px; }
+    .spark polyline { fill: none; stroke: var(--accent-strong); stroke-width: 2; }
+    .did {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    .count {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .not-added {
+      margin-top: 0.9rem;
       font-size: 0.8rem;
       color: var(--text-dim);
     }
-    .service.not_configured { opacity: 0.55; }
-    .service.error .service-detail { color: var(--bad); }
 
     .live {
-      margin-top: 1rem;
+      margin-top: 1.25rem;
       font-size: 0.8rem;
       color: var(--text-dim);
     }
@@ -136,16 +158,33 @@
       animation: pulse 2s infinite;
     }
     @keyframes pulse { 50% { opacity: 0.3; } }
-    @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .pulse { animation: none; }
+      .service { transition: none; }
+    }
 
-    .error-banner {
-      display: none;
-      margin-bottom: 1rem;
-      padding: 0.6rem 0.9rem;
-      border-radius: 10px;
-      background: var(--bad-soft);
-      color: var(--bad);
-      font-size: 0.85rem;
+    .access {
+      margin-top: 2rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+    .access h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .access ul { list-style: none; display: grid; gap: 0.45rem; }
+    .access li {
+      display: grid;
+      grid-template-columns: 1.25rem 1fr;
+      font-size: 0.9rem;
+    }
+    .access li::before { content: "✓"; color: var(--ok); font-weight: 700; }
+    .access .note { margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-dim); }
+    .tech {
+      padding: 0 0.35rem;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
     }
 
     details { margin-top: 1.5rem; }
@@ -171,13 +210,23 @@
 
   <main>
     <h1>Hello from <b id="hello-name">your app</b></h1>
-    <p class="lede" id="lede">Asking your API what it can reach…</p>
+    <p class="lede">
+      Every 5 seconds your API makes <strong>real round trips</strong> to the services Launchpad made
+      for it. The times below are live.
+    </p>
 
     <div class="error-banner" id="error-banner"></div>
 
-    <ul class="services" id="services"></ul>
+    <div class="services" id="services"></div>
+    <p class="not-added" id="not-added"></p>
 
     <p class="live" id="live"></p>
+
+    <section class="access" id="access" hidden>
+      <h2>How your API got in</h2>
+      <ul id="access-list"></ul>
+      <p class="note">This page shows no keys, passwords or account details.</p>
+    </section>
 
     <details id="raw" hidden>
       <summary>What the API sent</summary>
@@ -198,71 +247,129 @@
     const apiOverride = /^https?:\/\//i.test(rawOverride ?? '') ? rawOverride : null
     const apiURL = localPreview && apiOverride ? apiOverride : `https://${apiBase}/`
 
-    // Plain names, plus the product behind each, so anyone can see these are real services.
-    const SERVICES = {
-      'SQL Database': ['Database', 'Postgres'],
-      'Cache': ['Cache', 'Redis'],
-      'NoSQL Database': ['Table', 'DynamoDB'],
-      'Object Storage': ['File storage', 'S3'],
-      'Topic': ['Message topic', 'NATS'],
-      'Subscription': ['Message subscription', 'NATS'],
-    }
-    const MARKS = { ok: '✓', error: '!', starting: '…', not_configured: '–' }
+    const POLL_MS = 5000
+    const HISTORY = 12
 
+    // What each service is, where it runs, and how the API got access.
+    // Access lines describe how the platform wires each kind. They name no resource.
+    const SERVICES = {
+      'NoSQL Database': {
+        product: 'DynamoDB', where: 'table in AWS',
+        access: 'An <span class="tech">AWS IAM</span> role made for this app alone. The pod trades its short-lived workload identity for AWS credentials that expire on their own.',
+      },
+      'Object Storage': {
+        product: 'S3', where: 'bucket in AWS',
+        access: 'An <span class="tech">AWS IAM</span> role made for this app alone. The pod trades its short-lived workload identity for AWS credentials that expire on their own.',
+      },
+      'SQL Database': {
+        product: 'Postgres', where: 'database in the cluster',
+        access: 'The <span class="tech">Postgres</span> address and password, mounted into the pod as files only this app can read.',
+      },
+      'Cache': {
+        product: 'Redis', where: 'cache in the cluster',
+        access: 'The <span class="tech">Redis</span> address and password, mounted into the pod as files only this app can read.',
+      },
+      'Topic': {
+        product: 'NATS topic', where: 'messaging in the cluster',
+        access: 'Connection details for its <span class="tech">NATS</span> stream, set by the platform when the pod starts.',
+      },
+      'Subscription': {
+        product: 'NATS subscription', where: 'messaging in the cluster',
+        access: 'Connection details for its <span class="tech">NATS</span> subscription, set by the platform when the pod starts.',
+      },
+    }
+    const ALWAYS = 'Inside the cluster, only callers on an allow list can reach your API, and all traffic is encrypted.'
+
+    const history = {}
+    const rounds = {}
     let lastChecked = 0
 
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
     }
 
-    // demo-api ends each detail with its round-trip time, such as "(9ms)". Shown on its own.
+    // demo-api ends each detail with its round-trip time, such as "(9ms)".
     function splitLatency(detail) {
-      const m = /\s*\((\d+(?:\.\d+)?m?s)\)\s*$/.exec(detail ?? '')
-      return m ? [detail.slice(0, m.index), m[1]] : [detail ?? '', '']
+      const m = /\s*\((\d+(?:\.\d+)?)(m?s)\)\s*$/.exec(detail ?? '')
+      if (!m) return [detail ?? '', null]
+      const ms = m[2] === 's' ? Number(m[1]) * 1000 : Number(m[1])
+      return [detail.slice(0, m.index), ms]
     }
 
-    function detailText(i) {
-      if (i.status === 'not_configured') return 'Not added to this sandbox'
-      if (i.status === 'starting') return 'Starting up…'
-      return i.detail ?? ''
+    function sparkline(values) {
+      if (values.length < 2) return ''
+      const max = Math.max(...values), min = Math.min(...values)
+      const span = max - min || 1
+      const pts = values.map((v, i) => {
+        const x = (i / (HISTORY - 1)) * 100
+        const y = 26 - ((v - min) / span) * 24
+        return `${x.toFixed(1)},${y.toFixed(1)}`
+      }).join(' ')
+      return `<svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}"/></svg>`
+    }
+
+    function serviceCard(i) {
+      const info = SERVICES[i.name] ?? { product: i.name, where: '' }
+      const [did, ms] = splitLatency(i.detail)
+      const state = { ok: 'Connected', error: 'Failing', starting: 'Starting…' }[i.status] ?? i.status
+      const latency = i.status === 'ok' && ms !== null
+        ? `<div class="latency">${escapeHtml(Math.round(ms))}<small> ms</small></div>${sparkline(history[i.name] ?? [])}`
+        : ''
+      const count = i.status === 'ok' ? `<div class="count">round trip #${rounds[i.name] ?? 0}</div>` : ''
+      return `<div class="service ${escapeHtml(i.status)}" data-name="${escapeHtml(i.name)}">
+        <div class="service-top">
+          <div><div class="product">${escapeHtml(info.product)}</div><div class="where">${escapeHtml(info.where)}</div></div>
+          <div class="state">${escapeHtml(state)}</div>
+        </div>
+        ${latency}
+        <div class="did">${escapeHtml(i.status === 'starting' ? 'Waiting for it to come up' : did)}</div>
+        ${count}
+      </div>`
     }
 
     function render(data) {
       const name = (data.workspace ?? '').replace(/^guest-/, '') || 'your app'
       document.getElementById('workspace-name').textContent = name
       document.getElementById('hello-name').textContent = name
+      document.title = `${name} - Created by Launchpad`
 
       const list = data.integrations ?? []
       const added = list.filter(i => i.status !== 'not_configured')
-      const working = added.filter(i => i.status === 'ok')
-      document.getElementById('lede').textContent = added.length === 0
-        ? 'Your API answered. Add a database or storage in Launchpad to see it connect.'
-        : working.length === added.length
-          ? 'Your API answered, and reached every service you added.'
-          : `Your API answered. ${working.length} of ${added.length} services are connected so far.`
+      for (const i of added) {
+        const [, ms] = splitLatency(i.detail)
+        if (i.status === 'ok' && ms !== null) {
+          history[i.name] = [...(history[i.name] ?? []), ms].slice(-HISTORY)
+          rounds[i.name] = (rounds[i.name] ?? 0) + 1
+        }
+      }
 
-      // Added services first, so the real round trips lead.
-      const ordered = [...added, ...list.filter(i => i.status === 'not_configured')]
-      document.getElementById('services').innerHTML = ordered.map(i => {
-        const [label, tech] = SERVICES[i.name] ?? [i.name, '']
-        const [text, latency] = splitLatency(detailText(i))
-        return `<li class="service ${escapeHtml(i.status)}">
-          <span class="mark">${MARKS[i.status] ?? '?'}</span>
-          <span class="service-name">${escapeHtml(label)}${tech ? `<span class="tech">${escapeHtml(tech)}</span>` : ''}</span>
-          <span class="latency">${escapeHtml(latency)}</span>
-          <span class="service-detail">${escapeHtml(text)}</span>
-        </li>`
-      }).join('')
+      const grid = document.getElementById('services')
+      grid.innerHTML = added.length
+        ? added.map(serviceCard).join('')
+        : '<p class="did">Your API answered. Add a database or storage in Launchpad to see it connect.</p>'
+      // A brief outline on each card, so the refresh is visible.
+      grid.querySelectorAll('.service.ok').forEach(el => {
+        el.classList.add('flash')
+        setTimeout(() => el.classList.remove('flash'), 600)
+      })
+
+      const missing = list.filter(i => i.status === 'not_configured').map(i => SERVICES[i.name]?.product ?? i.name)
+      document.getElementById('not-added').textContent = missing.length ? `Not added to this sandbox: ${missing.join(', ')}.` : ''
+
+      // Fixed strings from SERVICES only, so no API value reaches this markup.
+      const lines = [...new Set(added.map(i => SERVICES[i.name]?.access).filter(Boolean)), ALWAYS]
+      document.getElementById('access-list').innerHTML = lines.map(l => `<li><span>${l}</span></li>`).join('')
+      document.getElementById('access').hidden = false
 
       document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2)
       document.getElementById('raw').hidden = false
     }
 
     function renderLive() {
-      const live = document.getElementById('live')
       const host = escapeHtml(new URL(apiURL).host)
       const ago = lastChecked ? Math.round((Date.now() - lastChecked) / 1000) : null
-      live.innerHTML = `<span class="pulse"></span>Live from <a href="${escapeHtml(apiURL)}" target="_blank" rel="noopener noreferrer">${host}</a>`
+      document.getElementById('live').innerHTML =
+        `<span class="pulse"></span>Live from <a href="${escapeHtml(apiURL)}" target="_blank" rel="noopener noreferrer">${host}</a>`
         + (ago === null ? '' : ` · checked ${ago}s ago`)
     }
 
@@ -285,7 +392,7 @@
     }
 
     poll()
-    setInterval(poll, 5000)
+    setInterval(poll, POLL_MS)
     setInterval(renderLive, 1000)
   </script>
 </body>
