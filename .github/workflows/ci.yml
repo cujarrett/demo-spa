@@ -36,7 +36,7 @@ jobs:
           sbom: true
           push: true
           tags: |
-            ghcr.io/cujarrett/demo-spaatest
-            ghcr.io/cujarrett/demo-spaa }}
+            ghcr.io/cujarrett/demo-spa:latest
+            ghcr.io/cujarrett/demo-spa:sha-${{ github.sha }}
           cache-from: type=gha,scope=demo-spa
           cache-to: type=gha,mode=max,scope=demo-spa
