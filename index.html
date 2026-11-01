@@ -205,7 +205,7 @@
 <body>
   <header class="topbar">
     <div class="app-name"><span id="workspace-name">your app</span> <span class="sub">· your sandbox app</span></div>
-    <div class="made-by">Made by <a href="https://launchpad.mattjarrett.dev" target="_blank" rel="noopener noreferrer">Launchpad</a> · deleted within 10 minutes</div>
+    <div class="made-by">Made by <a href="https://launchpad.mattjarrett.dev" target="_blank" rel="noopener noreferrer">Launchpad</a> · <span id="countdown">deleted within 10 minutes</span></div>
   </header>
 
   <main>
@@ -279,6 +279,30 @@
       },
     }
     const ALWAYS = 'Inside the cluster, only callers on an allow list can reach your API, and all traffic is encrypted.'
+
+    // Launchpad's public sandbox list holds each slot's expiry, for the countdown.
+    const LAUNCHPAD_LIST = 'https://launchpad.mattjarrett.dev/api/guest/workspaces'
+    const slot = (/^(demo\d+)\./.exec(hostname) ?? [])[1]
+    let expiresAt = 0
+
+    async function loadExpiry() {
+      if (!slot) return
+      try {
+        const res = await fetch(LAUNCHPAD_LIST, { cache: 'no-store' })
+        const list = await res.json()
+        const mine = list.find(w => w.slot === slot)
+        const t = Date.parse(mine?.expiresAt ?? '')
+        if (!Number.isNaN(t)) expiresAt = t
+      } catch { /* Keeps the "within 10 minutes" fallback. */ }
+    }
+
+    function renderCountdown() {
+      if (!expiresAt) return
+      const left = Math.max(0, expiresAt - Date.now())
+      const m = Math.floor(left / 60000)
+      const sec = String(Math.floor((left % 60000) / 1000)).padStart(2, '0')
+      document.getElementById('countdown').textContent = left > 0 ? `deleted in ${m}:${sec}` : 'being deleted now'
+    }
 
     const history = {}
     const rounds = {}
@@ -392,8 +416,9 @@
     }
 
     poll()
+    loadExpiry()
     setInterval(poll, POLL_MS)
-    setInterval(renderLive, 1000)
+    setInterval(() => { renderLive(); renderCountdown() }, 1000)
   </script>
 </body>
 </html>
