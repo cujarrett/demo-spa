@@ -178,13 +178,71 @@
       font-size: 0.9rem;
     }
     .access li::before { content: "✓"; color: var(--ok); font-weight: 700; }
-    .access .note { margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-dim); }
     .tech {
       padding: 0 0.35rem;
       border-radius: 4px;
       background: var(--accent-soft);
       color: var(--accent);
       font-weight: 700;
+    }
+
+    /* Phones get one compact row per service, so every service fits on the first screen. */
+    @media (max-width: 600px) {
+      main { padding-top: 1.25rem; }
+      .lede { margin-bottom: 1rem; font-size: 0.9rem; }
+      .services { gap: 0.5rem; }
+      .service {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "top lat" "did spark";
+        gap: 0.1rem 0.75rem;
+        align-items: center;
+        padding: 0.65rem 0.9rem;
+        border-radius: 12px;
+      }
+      .service-top { grid-area: top; justify-content: flex-start; }
+      .service-top > div { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; }
+      .service.ok .state { display: none; }
+      .service.ok .product::before {
+        content: "";
+        display: inline-block;
+        width: 0.45rem;
+        height: 0.45rem;
+        margin: 0 0.4rem 0.1rem 0;
+        border-radius: 50%;
+        background: var(--ok);
+      }
+      .product { font-size: 0.95rem; white-space: nowrap; }
+      .where { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .latency { grid-area: lat; margin: 0; font-size: 1.35rem; text-align: right; }
+      .latency small { font-size: 0.7rem; }
+      .spark { grid-area: spark; width: 4rem; height: 16px; }
+      .did { grid-area: did; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .count { display: none; }
+      .live { margin-top: 0.75rem; }
+      .access { margin-top: 1.25rem; padding: 0.9rem 1rem; }
+      .access li { font-size: 0.85rem; }
+    }
+
+    /* The Launchpad mark in this page's colours. The brackets draw and the arrow lifts
+       when the footer scrolls into view, then the arrow keeps a slow float. */
+    .footer { display: flex; justify-content: center; padding: 1rem 1rem 2.5rem; }
+    .footer a { display: inline-flex; line-height: 0; }
+    .mark { width: 3rem; height: auto; }
+    .mark .bracket path { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+    /* Near-white arrow inside pink brackets, so the two parts read apart. */
+    .mark .arrow { fill: #fdf4ff; }
+    .mark.animate .bracket path { stroke-dasharray: 120; animation: mark-draw 0.55s cubic-bezier(0.4, 0, 0.2, 1) both; }
+    .mark.animate .bracket path:last-child { animation-delay: 0.08s; }
+    .mark.animate .arrow {
+      animation: mark-rise 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) 0.4s both, mark-float 2.4s ease-in-out 1s infinite;
+    }
+    .footer a:hover .bracket path { stroke: var(--accent-strong); }
+    @keyframes mark-draw { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+    @keyframes mark-rise { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes mark-float { 50% { transform: translateY(-3px); } }
+    @media (prefers-reduced-motion: reduce) {
+      .mark.animate .bracket path, .mark.animate .arrow { animation: none; stroke-dashoffset: 0; opacity: 1; transform: none; }
     }
 
     details { margin-top: 1.5rem; }
@@ -211,8 +269,7 @@
   <main>
     <h1>Hello from <b id="hello-name">your app</b></h1>
     <p class="lede">
-      Every 5 seconds your API makes <strong>real round trips</strong> to the services Launchpad made
-      for it. The times below are live.
+      <strong>Real round trips</strong> from your API to its services, every 5 seconds.
     </p>
 
     <div class="error-banner" id="error-banner"></div>
@@ -225,7 +282,6 @@
     <section class="access" id="access" hidden>
       <h2>How your API got in</h2>
       <ul id="access-list"></ul>
-      <p class="note">This page shows no keys, passwords or account details.</p>
     </section>
 
     <details id="raw" hidden>
@@ -233,6 +289,21 @@
       <pre id="raw-json"></pre>
     </details>
   </main>
+
+  <footer class="footer">
+    <a href="https://launchpad.mattjarrett.dev" target="_blank" rel="noopener noreferrer" title="Made by Launchpad">
+      <svg class="mark" id="mark" viewBox="0 0 80 64" role="img" aria-label="Launchpad">
+        <g class="bracket">
+          <path d="M27 10 H14 V54 H27" />
+          <path d="M53 10 H66 V54 H53" />
+        </g>
+        <g class="arrow">
+          <path d="M40 16.5 L53.5 32 H26.5 Z" />
+          <rect x="35.5" y="29" width="9" height="22" rx="4.5" />
+        </g>
+      </svg>
+    </a>
+  </footer>
 
   <script>
     const hostname = window.location.hostname
@@ -255,30 +326,30 @@
     const SERVICES = {
       'NoSQL Database': {
         product: 'DynamoDB', where: 'table in AWS',
-        access: 'An <span class="tech">AWS IAM</span> role made for this app alone. The pod trades its short-lived workload identity for AWS credentials that expire on their own.',
+        access: 'Its own <span class="tech">AWS IAM</span> role. No stored keys.',
       },
       'Object Storage': {
         product: 'S3', where: 'bucket in AWS',
-        access: 'An <span class="tech">AWS IAM</span> role made for this app alone. The pod trades its short-lived workload identity for AWS credentials that expire on their own.',
+        access: 'Its own <span class="tech">AWS IAM</span> role. No stored keys.',
       },
       'SQL Database': {
-        product: 'Postgres', where: 'database in the cluster',
-        access: 'The <span class="tech">Postgres</span> address and password, mounted into the pod as files only this app can read.',
+        product: 'Postgres', where: 'database in cluster',
+        access: '<span class="tech">Postgres</span> password, in a private file.',
       },
       'Cache': {
-        product: 'Redis', where: 'cache in the cluster',
-        access: 'The <span class="tech">Redis</span> address and password, mounted into the pod as files only this app can read.',
+        product: 'Redis', where: 'cache in cluster',
+        access: '<span class="tech">Redis</span> password, in a private file.',
       },
       'Topic': {
-        product: 'NATS topic', where: 'messaging in the cluster',
+        product: 'NATS topic', where: 'messaging in cluster',
         access: 'Connection details for its <span class="tech">NATS</span> stream, set by the platform when the pod starts.',
       },
       'Subscription': {
-        product: 'NATS subscription', where: 'messaging in the cluster',
+        product: 'NATS subscription', where: 'messaging in cluster',
         access: 'Connection details for its <span class="tech">NATS</span> subscription, set by the platform when the pod starts.',
       },
     }
-    const ALWAYS = 'Inside the cluster, only callers on an allow list can reach your API, and all traffic is encrypted.'
+    const ALWAYS = 'Allow-listed callers only. All traffic encrypted.'
 
     // Launchpad's public sandbox list holds each slot's expiry, for the countdown.
     const LAUNCHPAD_LIST = 'https://launchpad.mattjarrett.dev/api/guest/workspaces'
@@ -414,6 +485,12 @@
       }
       renderLive()
     }
+
+    // The footer sits below the fold, so the mark animates when it comes into view.
+    const mark = document.getElementById('mark')
+    new IntersectionObserver(([e], obs) => {
+      if (e.isIntersecting) { mark.classList.add('animate'); obs.disconnect() }
+    }).observe(mark)
 
     poll()
     loadExpiry()
