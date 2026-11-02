@@ -51,9 +51,9 @@
     .made-by a { color: var(--accent); }
 
     main {
-      max-width: 860px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 2.5rem 1rem 3rem;
+      padding: 1.75rem 1rem 1.25rem;
     }
     h1 {
       font-size: clamp(1.7rem, 6vw, 2.6rem);
@@ -62,7 +62,7 @@
     }
     h1 b { color: var(--accent); }
     .lede {
-      margin: 0.6rem 0 1.75rem;
+      margin: 0.5rem 0 1.25rem;
       color: var(--text-dim);
       max-width: 40rem;
     }
@@ -80,7 +80,8 @@
 
     .services {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      /* Four services fit one row on a laptop screen. */
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
     }
     .service {
@@ -164,7 +165,7 @@
     }
 
     .access {
-      margin-top: 2rem;
+      margin-top: 1.25rem;
       padding: 1.1rem 1.2rem;
       border-radius: 14px;
       border: 1px solid var(--border);
@@ -226,7 +227,7 @@
 
     /* The Launchpad mark in this page's colours. The brackets draw and the arrow lifts
        when the footer scrolls into view, then the arrow keeps a slow float. */
-    .footer { display: flex; justify-content: center; padding: 1rem 1rem 2.5rem; }
+    .footer { display: flex; justify-content: center; padding: 0.5rem 1rem 1.5rem; }
     .footer a { display: inline-flex; line-height: 0; }
     .mark { width: 3rem; height: auto; }
     .mark .bracket path { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
@@ -245,7 +246,7 @@
       .mark.animate .bracket path, .mark.animate .arrow { animation: none; stroke-dashoffset: 0; opacity: 1; transform: none; }
     }
 
-    details { margin-top: 1.5rem; }
+    details { margin-top: 1rem; }
     summary { cursor: pointer; color: var(--text-dim); font-size: 0.85rem; }
     pre {
       margin-top: 0.6rem;
