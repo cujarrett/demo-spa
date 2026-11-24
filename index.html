@@ -356,6 +356,7 @@
     const LAUNCHPAD_LIST = 'https://launchpad.mattjarrett.dev/api/guest/workspaces'
     const slot = (/^(demo\d+)\./.exec(hostname) ?? [])[1]
     let expiresAt = 0
+    let sandboxName = ''
 
     async function loadExpiry() {
       if (!slot) return
@@ -365,6 +366,8 @@
         const mine = list.find(w => w.slot === slot)
         const t = Date.parse(mine?.expiresAt ?? '')
         if (!Number.isNaN(t)) expiresAt = t
+        sandboxName = mine?.name ?? ''
+        if (sandboxName) showName(sandboxName)
       } catch { /* Keeps the "within 10 minutes" fallback. */ }
     }
 
@@ -423,11 +426,16 @@
       </div>`
     }
 
-    function render(data) {
-      const name = (data.workspace ?? '').replace(/^guest-/, '') || 'your app'
+    // Launchpad's list knows the sandbox name. The API's answer is the fallback.
+    function showName(workspace) {
+      const name = workspace.replace(/^guest-/, '') || 'your app'
       document.getElementById('workspace-name').textContent = name
       document.getElementById('hello-name').textContent = name
       document.title = `${name} - Created by Launchpad`
+    }
+
+    function render(data) {
+      showName(sandboxName || (data.workspace ?? ''))
 
       const list = data.integrations ?? []
       const added = list.filter(i => i.status !== 'not_configured')
