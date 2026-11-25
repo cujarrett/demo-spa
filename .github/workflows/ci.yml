@@ -3,6 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -20,3 +22,5 @@ jobs:
         ghcr.io/cujarrett/demo-spa:latest
         ghcr.io/cujarrett/demo-spa:sha-${{ github.sha }}
       cache-scope: demo-spa
+      # Branch protection requires this build, so Renovate PRs wait on it before auto-merge.
+      check-only: ${{ github.event_name == 'pull_request' }}
