@@ -1,3 +1,3 @@
-FROM ghcr.io/cujarrett/base-nginx:1.31-alpine@sha256:5a496bb0fc48c56667dd14b68390213f35380810ad3a36e1c632a7702990394a
+FROM ghcr.io/cujarrett/base-nginx:1.31-alpine@sha256:fcaa2759ec56a2e5c5d0a3725274a52f4e233aa3ff8c6d25003422b0aa1e57aa
 COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
